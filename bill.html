@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>KAPIL KALA KENDRA - Billing Page</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f4f4f4;
+      margin: 0;
+      padding: 40px;
+      color: #333;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: auto;
+      background: white;
+      padding: 30px;
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+      border-radius: 10px;
+    }
+
+    .shop-header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .shop-header h1 {
+      margin: 0;
+      font-size: 36px;
+      color: #222;
+      font-weight: bold;
+      letter-spacing: 1px;
+    }
+
+    .shop-header p {
+      margin: 5px 0;
+      color: #666;
+      font-size: 14px;
+    }
+
+    .section {
+      margin-bottom: 20px;
+    }
+
+    .item-row {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .item-row input {
+      flex: 1;
+      padding: 5px;
+    }
+
+    input[type="text"], input[type="number"], input[type="date"] {
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      padding: 8px;
+      width: 100%;
+    }
+
+    button {
+      padding: 10px 20px;
+      background-color: #3498db;
+      border: none;
+      border-radius: 5px;
+      color: white;
+      cursor: pointer;
+      font-weight: bold;
+      margin-right: 10px;
+    }
+
+    button:hover {
+      background-color: #2980b9;
+    }
+
+    #bill-output {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <div class="shop-header">
+    <h1><strong>KAPIL KALA KENDRA</strong></h1>
+    <p>Vijay Nagar, Jabalpur (M.P)</p>
+    <p>Phone: (123) 456-7890 | Email: kapilkala@example.com</p>
+  </div>
+
+  <div class="section">
+    <label>Customer Name:</label>
+    <input type="text" id="customerName">
+  </div>
+
+  <div class="section">
+    <label>Date:</label>
+    <input type="date" id="billingDate">
+  </div>
+
+  <div class="section">
+    <label>Discount (%):</label>
+    <input type="number" id="discount" placeholder="e.g. 10">
+  </div>
+
+  <div class="section" id="items">
+    <div class="item-row">
+      <input type="text" class="item-name" placeholder="Item Name">
+      <input type="number" class="item-qty" value="1" min="1" placeholder="Qty">
+      <input type="number" class="item-price" value="0" step="0.01" placeholder="Price">
+    </div>
+  </div>
+
+  <button onclick="addItem()">+ Add Item</button>
+  <button onclick="processBill()">Process Bill</button>
+</div>
+
+<!-- Hidden div for PDF generation -->
+<div id="bill-output"></div>
+
+<script>
+  window.onload = function () {
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('billingDate').value = today;
+  };
+
+  function addItem() {
+    const itemDiv = document.createElement('div');
+    itemDiv.className = 'item-row';
+    itemDiv.innerHTML = `
+      <input type="text" class="item-name" placeholder="Item Name">
+      <input type="number" class="item-qty" value="1" min="1" placeholder="Qty">
+      <input type="number" class="item-price" value="0" step="0.01" placeholder="Price">
+    `;
+    document.getElementById('items').appendChild(itemDiv);
+  }
+
+  async function processBill() {
+    const names = document.querySelectorAll('.item-name');
+    const qtys = document.querySelectorAll('.item-qty');
+    const prices = document.querySelectorAll('.item-price');
+    const discountPercent = parseFloat(document.getElementById('discount').value) || 0;
+
+    let grandTotal = 0;
+    let tableHTML = `<table border="1" cellspacing="0" cellpadding="5" style="width: 100%; border-collapse: collapse;">
+      <thead>
+        <tr style="background-color: #f0f0f0;">
+          <th>Item</th><th>Qty</th><th>Price</th><th>Total</th>
+        </tr>
+      </thead>
+      <tbody>`;
+
+    for (let i = 0; i < names.length; i++) {
+      const name = names[i].value || '-';
+      const qty = parseFloat(qtys[i].value) || 0;
+      const price = parseFloat(prices[i].value) || 0;
+      const total = qty * price;
+      grandTotal += total;
+
+      tableHTML += `
+        <tr>
+          <td>${name}</td>
+          <td>${qty}</td>
+          <td>$${price.toFixed(2)}</td>
+          <td>$${total.toFixed(2)}</td>
+        </tr>`;
+    }
+
+    const discountAmount = (discountPercent / 100) * grandTotal;
+    const finalTotal = grandTotal - discountAmount;
+
+    tableHTML += `
+      </tbody>
+    </table>
+    <p style="text-align:right; margin-top: 10px;">Subtotal: $${grandTotal.toFixed(2)}</p>
+    <p style="text-align:right;">Discount (${discountPercent}%): -$${discountAmount.toFixed(2)}</p>
+    <p style="text-align:right; font-weight: bold;">Grand Total: $${finalTotal.toFixed(2)}</p>`;
+
+    const billHTML = `
+      <div style="font-family: 'Segoe UI', sans-serif; padding: 30px;">
+        <h1 style="text-align:center; margin-bottom:5px;"><strong>KAPIL KALA KENDRA</strong></h1>
+        <p style="text-align:center; margin:0;">Vijay Nagar, Jabalpur (M.P)</p>
+        <p style="text-align:center; margin:0;">Phone: (123) 456-7890 | Email: kapilkala@example.com</p>
+        <hr style="margin:20px 0;">
+        <p><strong>Customer:</strong> ${document.getElementById('customerName').value}</p>
+        <p><strong>Date:</strong> ${document.getElementById('billingDate').value}</p>
+        ${tableHTML}
+        <div style="text-align: center; margin-top: 30px;">
+          <button onclick="window.print()" style="padding: 10px 20px; margin-right: 10px;">Print</button>
+          <button onclick="downloadPDF()" style="padding: 10px 20px;">Download PDF</button>
+        </div>
+      </div>
+    `;
+
+    const newWindow = window.open('', '_blank');
+    newWindow.document.open();
+    newWindow.document.write(billHTML);
+    newWindow.document.write(`<script>
+      async function downloadPDF() {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        doc.html(document.body, {
+          callback: function (pdf) {
+            pdf.save("Kapil_Kala_Kendra_Bill.pdf");
+          },
+          x: 10,
+          y: 10,
+          width: 180
+        });
+      }
+    <\/script>`);
+    newWindow.document.close();
+  }
+</script>
+
+</body>
+</html>
