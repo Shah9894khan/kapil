@@ -176,9 +176,9 @@
     tableHTML += `
       </tbody>
     </table>
-    <p style="text-align:right; margin-top: 10px;">Subtotal: $${grandTotal.toFixed(2)}</p>
-    <p style="text-align:right;">Discount (${discountPercent}%): -$${discountAmount.toFixed(2)}</p>
-    <p style="text-align:right; font-weight: bold;">Grand Total: $${finalTotal.toFixed(2)}</p>`;
+    <p style="text-align:right; margin-top: 10px;">Subtotal: ${grandTotal.toFixed(2)}</p>
+    <p style="text-align:right;">Discount (${discountPercent}%): -${discountAmount.toFixed(2)}</p>
+    <p style="text-align:right; font-weight: bold;">Grand Total: ${finalTotal.toFixed(2)}</p>`;
 
     const billHTML = `
       <div style="font-family: 'Segoe UI', sans-serif; padding: 30px;">
@@ -186,8 +186,8 @@
         <p style="text-align:center; margin:0;">Vijay Nagar, Jabalpur (M.P)</p>
         <p style="text-align:center; margin:0;">Phone: +91 9584896387 | Website: kapilkalakendra.shop</p>
         <hr style="margin:20px 0;">
-        <p><strong>Customer:</strong> ${document.getElementById('customerName').value}</p>
-        <p><strong>Date:</strong> ${document.getElementById('billingDate').value}</p>
+        <p><strong>Customer:</strong> Rs{document.getElementById('customerName').value}</p>
+        <p><strong>Date:</strong> Rs{document.getElementById('billingDate').value}</p>
         ${tableHTML}
         <div style="text-align: center; margin-top: 30px;">
           <button onclick="window.print()" style="padding: 10px 20px; margin-right: 10px;">Print</button>
